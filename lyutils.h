@@ -1,31 +1,23 @@
-// Name       : lyutils.h
-// Description: Single Header Library for lyra consist renaming 
-//              some type like i32 and the other and somes
-
-
 #ifndef LYUTILS_VERSION
 #define LYUTILS_VERSION "0.0.1"
+#include <stddef.h>
+
+// Name       : lyutils.h
+// Description: Single Header Library for lyra consist renaming
+//              some type like i32 and the other and somes
 
 #include <stdint.h>
 
+#define MAX(a, b) ((a > b) ? a : b)
+#define MIN(a, b) ((a > b) ? b : a)
+
+#define ARRAY_LEN(ar) (sizeof(ar) / sizeof(ar[0]))
+
 // // Standard Type For Integer Values // //
 
-// 8 bit integers, used to store small values. mostly unused to 
-// avoid integer overflow
-// `-128 to 127`
 typedef int8_t i8;
-
-// 16 bit integers
-// `-32768 to 32767`
 typedef int16_t i16;
-
-
-// 32 bit integers
-// `-2147483648 to 2147483647`
 typedef int32_t i32;
-
-// 64 bit integers
-// `-9223372036854775808 to 9223372036854775807`
 typedef int64_t i64;
 
 // // Standard Type For Unsigned Integer Values // //
@@ -38,7 +30,9 @@ typedef uint64_t u64;
 
 // // Standard Type For Floating Point Values // //
 
-typedef float f32 ;
-typedef double f64 ;
+typedef float f32;
+typedef double f64;
+
+typedef size_t size;
 
 #endif
