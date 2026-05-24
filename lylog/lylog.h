@@ -1,33 +1,33 @@
 /*
  * NAME:  lylog.h
  * DESC:  Header To Enable Logging Systems In Lyra
- * NOTE:  Fungsi masih belum benar - benar bisa menghandle nilai yang setelahnya
- * /
+ * NOTE:  Secara keseluruhan untuk logging yang telah di predefine di file
+ *        header telah bisa dilakukan secara lengkap
+ * TRGT:  Update untuk bisa menerima custom msg dan colours di seluruh files
  */
 
-#include <wchar.h>
-#ifndef LYLOG_VERSION
-#define LYLOG_VERSION "0.0.3"
+#ifndef ___LYLOG_VERSION___
+#define ___LYLOG_VERSION___ "0.1.0"
 
 #define RGBTOANSI(r, g, b) "\033[38;2;" #r ";" #g ";" #b "m"
 
 // TO ACCESS DEFAULT MSG AND CLR
 #define LYMC_LOGDEFAULT(X)                                                     \
-  X(ERROR, RGBTOANSI(255, 0, 0))                                               \
-  X(WARN, RGBTOANSI(0, 255, 0))                                                \
   X(INFO, RGBTOANSI(0, 0, 255))                                                \
+  X(WARN, RGBTOANSI(0, 255, 0))                                                \
+  X(ERROR, RGBTOANSI(255, 0, 0))                                               \
   X(FATAL, RGBTOANSI(0, 0, 255))
 
 // You Can Define Your Own Log Colors Before This,
-#ifndef LYM_SETLOG
 #define LYM_SETLOG(X) LYMC_LOGDEFAULT(X)
-#endif
 
 #define LYM_SETLOGENUM(e, c) e,
 #define LYM_SETLOGENUMSTR(e, c) #e,
 #define LYM_SETLOGCOLOR(e, c) c,
 
-typedef enum { LYM_SETLOG(LYM_SETLOGENUM) LENGTH } LYLOGE_LOGTYPE;
+typedef enum { LYM_SETLOG(LYM_SETLOGENUM) } LYLOGE_LOGTYPE;
+static const char* LYGC_LOGMSG[] = {LYM_SETLOG(LYM_SETLOGENUMSTR)};
+static const char* LYGC_LOGCOLORS[] = {LYM_SETLOG(LYM_SETLOGCOLOR)};
 
 // DISABLE DEBUG
 #ifndef LY_BUILD_MODE
@@ -84,16 +84,23 @@ static struct {
   ___Callback callback[___MAXIMUM_CALL];
 } ___L;
 
-// IMPLEMENTATION
+/// FORWARD DECLARATION ///
 
-/// VARIABLES ///
-// TIPE LOG ENUM NYA MODEL STRING
-const char* LYGC_LOGMSG[] = {LYM_SETLOG(LYM_SETLOGENUMSTR)};
-// TIPE WARNA LOG ENUM NYA
-const char* LYGC_LOGCOLORS[] = {LYM_SETLOG(LYM_SETLOGCOLOR)};
+void
+lylogConfLSetLevel(i32 msge);
+void
+lylogConfToggleFileInfo();
+void
+lylogConfToggleTxtOnly();
 
-/// CONFIG ///
-/// Fungsi konfigurasi untuk hanya melihat Error bagian mana saja yang muncul
+void
+___print_log(const char* f, i32 l, LYLOGE_LOGTYPE t, char* fmt, ...);
+
+/// /// IMPLEMENTATION /// ///
+#ifdef ___LYLOG_IMPLEMENTATION___
+///
+/// Fungsi konfigurasi untuk hanya melihat Error bagian mana saja yang
+/// muncul
 void
 lylogConfLSetLevel(i32 msge) {
   ___L.msge = msge;
@@ -143,10 +150,10 @@ ____printout_callback(LyLogEvent* ev) {
       '\0'; // damn, this implementation
   if (___L.justtxt) {
   } else if (___L.fileinfo) {
-    fprintf(ev->prtout, "%s %s%s %s " LYMC_LOGFORMATEND, buf, ev->file,
+    fprintf(ev->prtout, "|%s| |%s|%s %s" LYMC_LOGFORMATEND " | ", buf, ev->file,
             LYGC_LOGCOLORS[ev->msge], LYGC_LOGMSG[ev->msge]);
   } else {
-    fprintf(ev->prtout, "%s%s %s " LYMC_LOGFORMATEND, buf,
+    fprintf(ev->prtout, "|%s|%s %s" LYMC_LOGFORMATEND " | ", buf,
             LYGC_LOGCOLORS[ev->msge], LYGC_LOGMSG[ev->msge]);
   }
   vfprintf(ev->prtout, ev->fmt, ev->ap);
@@ -185,6 +192,8 @@ ___print_log(const char* f, i32 l, LYLOGE_LOGTYPE t, char* fmt, ...) {
 
   ____unlock_L();
 }
+
+#endif
 
 #else
 #define lym_printlog(LYLOGE_LOGTYPE, ...)

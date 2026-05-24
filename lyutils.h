@@ -1,5 +1,5 @@
 #ifndef LYUTILS_VERSION
-#define LYUTILS_VERSION "0.0.1"
+#define LYUTILS_VERSION "0.0.2"
 #include <stddef.h>
 
 // Name       : lyutils.h
