@@ -1,32 +1,25 @@
 // TEST VOID PTR & DYNLIST
-
-#include "../lyutils.h"
-#include <stdlib.h>
-
 // Implementasi satu, struct banyak
 
-#define LINLIST_INIT\
-
+#define LINLIST_INIT
 
 #define LINLIST_APPEND(dt, ptr)
 
-
-typedef struct{
-  f32 x;
-  f32 y;
+typedef struct {
+  float x;
+  float y;
 } v2;
 
-typedef struct{
+typedef struct {
   v2* data;
   int capacity;
   int used;
 } dinlist;
 
-
-int main(){
+int
+main() {
 
   LINLIST_INIT
-
 
   return 0;
 }

@@ -9,6 +9,8 @@
 #ifndef ___LYLOG_VERSION___
 #define ___LYLOG_VERSION___ "0.1.0"
 
+#include <stdint.h>
+
 #define RGBTOANSI(r, g, b) "\033[38;2;" #r ";" #g ";" #b "m"
 
 // TO ACCESS DEFAULT MSG AND CLR
@@ -32,7 +34,15 @@ static const char* LYGC_LOGCOLORS[] = {LYM_SETLOG(LYM_SETLOGCOLOR)};
 // DISABLE DEBUG
 #ifndef LY_BUILD_MODE
 
-#include "../lyutils.h"
+// EXPAND FROM lyutils.h
+#ifndef ___LYUTILS_VERSION___
+#if (__STDC_VERSION__ >= 202311l)
+#define LYNULL nullptr
+#else
+#define LYNULL NULL
+#endif
+
+#endif
 
 #include <stdarg.h>
 #include <stdio.h>
@@ -62,8 +72,8 @@ typedef struct {
   const char* file;
   struct tm* time;
   void* prtout;
-  i32 line;
-  i32 msge;
+  int32_t line;
+  int32_t msge;
 } LyLogEvent;
 
 typedef void (*log_LogFn)(LyLogEvent* ev);
@@ -72,37 +82,37 @@ typedef void (*log_LockFn)(bool lock, void* udata);
 typedef struct {
   log_LogFn fn;
   void* udata;
-  i32 msge;
+  int32_t msge;
 } ___Callback;
 
 static struct {
   void* udata;
   log_LockFn lock;
-  i32 msge;
-  i8 fileinfo : 1;
-  i8 justtxt : 1;
+  int32_t msge;
+  int8_t fileinfo : 1;
+  int8_t justtxt : 1;
   ___Callback callback[___MAXIMUM_CALL];
 } ___L;
 
 /// FORWARD DECLARATION ///
 
 void
-lylogConfLSetLevel(i32 msge);
+lylogConfLSetLevel(int32_t msge);
 void
 lylogConfToggleFileInfo();
 void
 lylogConfToggleTxtOnly();
 
 void
-___print_log(const char* f, i32 l, LYLOGE_LOGTYPE t, char* fmt, ...);
+___print_log(const char* f, int32_t l, LYLOGE_LOGTYPE t, char* fmt, ...);
 
 /// /// IMPLEMENTATION /// ///
-#ifdef ___LYLOG_IMPLEMENTATION___
+#ifdef ___LYLOG_IMP___
 ///
 /// Fungsi konfigurasi untuk hanya melihat Error bagian mana saja yang
 /// muncul
 void
-lylogConfLSetLevel(i32 msge) {
+lylogConfLSetLevel(int32_t msge) {
   ___L.msge = msge;
 }
 
@@ -137,7 +147,7 @@ ____unlock_L(void) {
 static void
 ___initialize_event(LyLogEvent* ev, void* ptrout) {
   if (!ev->time) {
-    time_t t = time(NULL);
+    time_t t = time(LYNULL);
     ev->time = localtime(&t);
   }
   ev->prtout = ptrout;
@@ -162,7 +172,7 @@ ____printout_callback(LyLogEvent* ev) {
 }
 
 void
-___print_log(const char* f, i32 l, LYLOGE_LOGTYPE t, char* fmt, ...) {
+___print_log(const char* f, int32_t l, LYLOGE_LOGTYPE t, char* fmt, ...) {
   // fprintf(stderr, "%s %s JAJAL %s" LYMC_LOGFORMATEND, LYGC_LOGMSG[t],
   //         LYGC_LOGCOLORS[t], m);
   LyLogEvent ev = {
