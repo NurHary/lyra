@@ -1,5 +1,3 @@
-
-
 #define ___LYLOG_IMP___
 #include "../lylog/lylog.h"
 

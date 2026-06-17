@@ -9,7 +9,17 @@
 #ifndef ___LYLOG_VERSION___
 #define ___LYLOG_VERSION___ "0.1.0"
 
+#if (__STDC_VERSION__ <= 202311l)
+#include <stdbool.h>
+#endif
+
 #include <stdint.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <wchar.h>
 
 #define RGBTOANSI(r, g, b) "\033[38;2;" #r ";" #g ";" #b "m"
 
@@ -44,13 +54,6 @@ static const char* LYGC_LOGCOLORS[] = {LYM_SETLOG(LYM_SETLOGCOLOR)};
 
 #endif
 
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <wchar.h>
-
 #define LYMC_LOGITALIC "\e[3m"
 #define LYM_LOGCOLORFG "\033[38;2;"
 #define LYMC_LOGCOLORBG "\033[48;2;"
@@ -77,7 +80,7 @@ typedef struct {
 } LyLogEvent;
 
 typedef void (*log_LogFn)(LyLogEvent* ev);
-typedef void (*log_LockFn)(bool lock, void* udata);
+typedef void (*log_LockFn)(char lock, void* udata);
 
 typedef struct {
   log_LogFn fn;
