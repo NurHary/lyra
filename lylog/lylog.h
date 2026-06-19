@@ -4,23 +4,23 @@
  * NOTE:  Secara keseluruhan untuk logging yang telah di predefine di file
  *        header telah bisa dilakukan secara lengkap
  * TRGT:  Update untuk bisa menerima custom msg dan colours di seluruh files
+ * TODO:  1. Merapikan Urutan Headers
+ *        2. Menambahkan MSVC Compiler Options
+ *        3. Menambahkan Portabilitas untuk versi c manapun dari 99 sampai 23++
  */
+
+#if (__STDC_VERSION__ <= 199900l)
+#error "lyra library can only be used on std c >= 99"
+#endif
 
 #ifndef ___LYLOG_VERSION___
 #define ___LYLOG_VERSION___ "0.1.0"
 
-#if (__STDC_VERSION__ <= 202311l)
-#include <stdbool.h>
-#endif
-
-#include <stdint.h>
 #include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <stdint.h>
 #include <time.h>
-#include <wchar.h>
 
+// TODO: Implementasi Custom Log msg pada setiap file
 #define RGBTOANSI(r, g, b) "\033[38;2;" #r ";" #g ";" #b "m"
 
 // TO ACCESS DEFAULT MSG AND CLR
@@ -42,7 +42,7 @@ static const char* LYGC_LOGMSG[] = {LYM_SETLOG(LYM_SETLOGENUMSTR)};
 static const char* LYGC_LOGCOLORS[] = {LYM_SETLOG(LYM_SETLOGCOLOR)};
 
 // DISABLE DEBUG
-#ifndef LY_BUILD_MODE
+#ifndef LYNDEBUG
 
 // EXPAND FROM lyutils.h
 #ifndef ___LYUTILS_VERSION___
@@ -110,8 +110,8 @@ void
 ___print_log(const char* f, int32_t l, LYLOGE_LOGTYPE t, char* fmt, ...);
 
 /// /// IMPLEMENTATION /// ///
-#ifdef ___LYLOG_IMP___
-///
+#ifdef LYLOG_IMPL
+#include <stdio.h>
 /// Fungsi konfigurasi untuk hanya melihat Error bagian mana saja yang
 /// muncul
 void
@@ -134,14 +134,14 @@ lylogConfToggleTxtOnly() {
 static void
 ____lock_L(void) {
   if (___L.lock) {
-    ___L.lock(true, ___L.udata);
+    ___L.lock(1, ___L.udata);
   }
 }
 
 static void
 ____unlock_L(void) {
   if (___L.lock) {
-    ___L.lock(false, ___L.udata);
+    ___L.lock(0, ___L.udata);
   }
 }
 
