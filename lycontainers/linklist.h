@@ -1,16 +1,25 @@
 
 #ifndef ___LYLINKLIST_VERSION___
-#define ___LYLINKLIST_VERSION___ "0.0.1" // DO NOT USE
+#define ___LYLINKLIST_VERSION___ "0.0.2" // DO NOT USE
 
 #include <stddef.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 #ifndef ___LYUTILS_VERSION___
 
 #if (__STDC_VERSION__ >= 202311l)
 #define LYNULL nullptr
+#define LYTYPEOF typeof
+
+#if (defined(_MSC_VER))
+#define LYTYPEOF __typeof__
+#endif
+
 #else
 #define LYNULL NULL
+#define LYTYPEOF __typeof__
+
 #endif
 
 #endif
@@ -48,7 +57,7 @@ typedef struct {
     if (id > header->count) {                                                  \
       lyLinkListPush(arr, val)                                                 \
     } else {                                                                   \
-      typeof(arr) curarr = LYNULL;                                             \
+      LYTYPEOF(arr) curarr = LYNULL;                                           \
       LLConnection* curhead = malloc(sizeof(LLConnection) + sizeof(*arr));     \
       curarr = (void*)(curhead + 1);                                           \
       *curarr = val;                                                           \
@@ -152,6 +161,16 @@ typedef struct {
     }                                                                          \
   }
 
+#define lyLinkListDeleteAll(arr)                                               \
+  {                                                                            \
+    LLConnection* connection = (LLConnection*)(arr) - 1;                       \
+    LLPtrHeader* header = (LLPtrHeader*)(connection) - 1;                      \
+    while (header->count > 0) {                                                \
+      header->count--;                                                         \
+      lyLinkListDeleteId(arr, header->count);                                  \
+    }                                                                          \
+  }
+
 #define lyLinkListSwapId(arr, idx, idy)                                        \
   {                                                                            \
     LLConnection* connection = (LLConnection*)(arr) - 1;                       \
@@ -182,7 +201,7 @@ typedef struct {
     printf("ITERASI LINKLIST:\n");                                             \
     for (int i = 0; i < header->count; i++) {                                  \
       arr = (void*)(connection + 1);                                           \
-      printf("ID%d:%f\n", i, *arr);                                            \
+      printf("ID%d:%d\n", i, *arr);                                            \
       connection = connection->ptr;                                            \
     }                                                                          \
     connection = (LLConnection*)(header + 1);                                  \
