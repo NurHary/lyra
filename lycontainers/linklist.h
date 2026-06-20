@@ -34,6 +34,16 @@ typedef struct {
   size_t count;
 } LLPtrHeader;
 
+#ifdef LYLINKLIST_IMPL
+typedef struct LinkedListConnection {
+  struct LinkedListConnection* ptr;
+} LLConnection;
+
+typedef struct {
+  size_t count;
+} LLPtrHeader;
+#endif
+
 // Fungsi macros untuk init linklist, tidak diniatkan untuk dipanggil oleh
 // pengguna akhir
 #define ___lyLinkListInit(arr, val)                                            \
@@ -165,9 +175,20 @@ typedef struct {
   {                                                                            \
     LLConnection* connection = (LLConnection*)(arr) - 1;                       \
     LLPtrHeader* header = (LLPtrHeader*)(connection) - 1;                      \
-    while (header->count > 0) {                                                \
-      header->count--;                                                         \
-      lyLinkListDeleteId(arr, header->count);                                  \
+    if (header->count == 1) {                                                  \
+      free(header);                                                            \
+    } else {                                                                   \
+      LLConnection* buf[header->count - 1] = {};                               \
+      LLConnection* lastcon = LYNULL;                                          \
+      for (int i = 0; i < header->count; ++i) {                                \
+        lastcon = connection;                                                  \
+        connection = connection->ptr;                                          \
+        buf[i] = connection;                                                   \
+      }                                                                        \
+      for (int i = 0; i < sizeof(buf) / sizeof(buf[0]); ++i) {                 \
+        free(buf[i]);                                                          \
+      }                                                                        \
+      free(header);                                                            \
     }                                                                          \
   }
 
