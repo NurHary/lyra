@@ -1,6 +1,10 @@
 // Name:  dynstrings.h
 // Desc:  Module for dynamic sized list using malloc
 
+#if (__STDC_VERSION__ <= 199900l)
+#error "lyra library can only be used on std c >= 99"
+#endif
+
 #ifndef ___LYDYNSTRINGS_VERSION___
 #define ___LYDYNSTRINGS_VERSION___ "0.0.1"
 
@@ -43,8 +47,7 @@ DynStringsSplitMulti(DynStrings st, char sep);
 
 // // // IMPLEMENTATION // // //
 
-#define ___LYDYNSTRINGS_IMP___
-#ifdef ___LYDYNSTRINGS_IMP___
+#ifdef LYDYNSTRINGS_IMPL
 
 #include <ctype.h>
 #include <stdio.h>
@@ -55,10 +58,12 @@ DynStringsSplitMulti(DynStrings st, char sep);
 #ifndef ___LYUTILS_VERSION___
 #if (__STDC_VERSION__ >= 202311l)
 #define LYNULL nullptr
+#define __LYMAYBEUNUSED [[maybe_unused]]
 #else
 #define LYNULL NULL
+#define __LYMAYBEUNUSED
 #endif
-// EXPAND FROM lyutils.h
+#endif // EXPAND FROM lyutils.h
 
 // #include "../lycontainers/dynlist.h"
 // EXPAND FROM dylist.h
@@ -95,8 +100,7 @@ typedef struct {
   free((___LyDynlistHeader*)(arr) - 1);                                        \
   arr = LYNULL
 #define lymDynlistLen(arr) ((___LyDynlistHeader*)(arr) - 1)->count
-#endif
-// EXPAND FROM dylist.h
+#endif // EXPAND FROM dylist.h
 
 // IMPLEMENTATION OF DynStrings
 
@@ -249,7 +253,7 @@ DynStringsSplit(DynStrings* st, char sep) { // THANKS TSODING, AGAIN
   return r;
 }
 
-[[maybe_unused]]
+__LYMAYBEUNUSED
 char**
 DynStringsSplitMulti(DynStrings st, char sep) { // TO REFACTOR
   int* bufid = nullptr;

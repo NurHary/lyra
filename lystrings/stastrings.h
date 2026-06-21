@@ -1,7 +1,14 @@
-// NAME:  stastrings.h
-// Desc:  Implementation of Read only Static Strings / String View
-// Auth:  KillingWhales (Nur Hary)
-// TODO:  Implementation Function for anystrings
+/* NAME:  stastrings.h
+ * Desc:  Implementation of Read only Static Strings / String View
+ * Auth:  KillingWhales (Nur Hary)
+ * TODO:  1. Implementation Function for anystrings
+ *        2. menambahkan compiler option msvc
+ *        3. menambahkan support untuk versi c lainnya mulai dari c99 -> c23++
+ */
+
+#if (__STDC_VERSION__ <= 199900l)
+#error "lyra library can only be used on std c >= 99"
+#endif
 
 #ifndef ___LYSTASTRINGS_VERSION___
 #define ___LYSTASTRINGS_VERSION___ "0.0.1"
@@ -13,7 +20,9 @@
 #ifndef ___LYUTILS_VERSION___
 #if (__STDC_VERSION__ >= 202311l)
 #define LYNULL nullptr
+#define __LYMAYBEUNUSED [[maybe_unused]]
 #else
+#define __LYMAYBEUNUSED
 #define LYNULL NULL
 #endif
 // EXPAND FROM lyutils.h
@@ -27,22 +36,16 @@ typedef struct {
 
 void
 StaStringsNew(StaStrings* st, const char* s);
-
 void
 StaStringsTrim(StaStrings* st);
-
 void
 StaStringsSlices(StaStrings* st, int l, int r);
-
 StaStrings
 StaStringsSplit(StaStrings* st, char sep);
-
 char**
 StaStringsSplitMulti(StaStrings st, char sep);
 
-#define ___LYSTASTRINGS_IMP___
-#ifdef ___LYSTASTRINGS_IMP___
-
+#ifdef LYSTASTRINGS_IMPL
 #include <ctype.h>
 #include <string.h>
 
@@ -129,7 +132,7 @@ StaStringsSplit(StaStrings* st, char sep) { // THANKS TSODING, AGAIN
   return r;
 }
 
-[[maybe_unused]]
+__LYMAYBEUNUSED__
 char**
 StaStringsSplitMulti(StaStrings st, char sep) {
   int* bufid = LYNULL;
