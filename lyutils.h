@@ -14,8 +14,11 @@
 
 #if (__STDC_VERSION__ >= 202311l)
 #define LYNULL nullptr
+// TODO: ATRIBUTE: [[maybe_unused]]
+#define LYATR_MAYBE_UNUSED [[maybe_unused]]
 #else
 #define LYNULL NULL
+#define LYATR_MAYBE_UNUSED
 #endif
 
 #endif

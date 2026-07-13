@@ -11,7 +11,7 @@
 #endif
 
 #ifndef ___LYSTASTRINGS_VERSION___
-#define ___LYSTASTRINGS_VERSION___ "0.0.1"
+#define ___LYSTASTRINGS_VERSION___ "0.0.2"
 
 #include <stddef.h>
 #include <stdlib.h>
@@ -40,6 +40,13 @@ void
 StaStringsTrim(StaStrings* st);
 void
 StaStringsSlices(StaStrings* st, int l, int r);
+
+// Fungsi Split untuk stastrings, fungsi ini menerima 3 parameter yaitu
+// stringsnya itu sendiri, seperator, dan posisi return.
+// posisi return berikan nilai 0 untuk mereturn split sebelumnya dan berikan
+// nilai 1 apabila ingin return strings setelah sep
+StaStrings
+StaStringsSplitCopy(StaStrings st, char sep, char p);
 StaStrings
 StaStringsSplit(StaStrings* st, char sep);
 char**
@@ -113,8 +120,41 @@ StaStringsSlices(StaStrings* st, int l, int r) {
   st->arr += l;
 }
 
+// Need More Refactors especially:
+// 1. Part where it checks if i < count
 StaStrings
-StaStringsSplit(StaStrings* st, char sep) { // THANKS TSODING, AGAIN
+StaStringsSplitCopy(StaStrings st, char sep,
+                    char p) { // THANKS TSODING, AGAIN
+  size_t i = 0;
+  while (i < st.count && st.arr[i] != sep) {
+    i += 1;
+  }
+
+  if (p) {
+    if (i < st.count) {
+      StaStrings r = {
+          .count = st.count - i,
+          .arr = st.arr + i + 1, // sangat membutuhkan jumlah arr dibawah count
+      };
+      return r;
+    }
+    StaStrings r = st;
+    return r;
+  }
+  if (i < st.count) {
+    StaStrings r = {
+        .count = i,
+        .arr = st.arr, // sangat membutuhkan jumlah arr dibawah count
+    };
+    return r;
+  }
+  StaStrings r = st;
+  return r;
+}
+
+StaStrings
+StaStringsSplit(StaStrings* st,
+                char sep) { // THANKS TSODING, AGAIN
   size_t i = 0;
   while (i < st->count && st->arr[i] != sep) {
     i += 1;
@@ -132,7 +172,7 @@ StaStringsSplit(StaStrings* st, char sep) { // THANKS TSODING, AGAIN
   return r;
 }
 
-__LYMAYBEUNUSED__
+__LYMAYBEUNUSED
 char**
 StaStringsSplitMulti(StaStrings st, char sep) {
   int* bufid = LYNULL;
