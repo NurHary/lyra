@@ -20,9 +20,9 @@
 #ifndef ___LYUTILS_VERSION___
 #if (__STDC_VERSION__ >= 202311l)
 #define LYNULL nullptr
-#define __LYMAYBEUNUSED [[maybe_unused]]
+#define LYATR(atr) [[atr]]
 #else
-#define __LYMAYBEUNUSED
+#define LYATR(atr)
 #define LYNULL NULL
 #endif
 // EXPAND FROM lyutils.h
@@ -172,7 +172,7 @@ StaStringsSplit(StaStrings* st,
   return r;
 }
 
-__LYMAYBEUNUSED
+LYATR(maybe_unused)
 char**
 StaStringsSplitMulti(StaStrings st, char sep) {
   int* bufid = LYNULL;

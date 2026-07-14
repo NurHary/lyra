@@ -58,10 +58,10 @@ DynStringsSplitMulti(DynStrings st, char sep);
 #ifndef ___LYUTILS_VERSION___
 #if (__STDC_VERSION__ >= 202311l)
 #define LYNULL nullptr
-#define __LYMAYBEUNUSED [[maybe_unused]]
+#define LYATR(atr) [[atr]]
 #else
 #define LYNULL NULL
-#define __LYMAYBEUNUSED
+#define LYATR(atr) [[atr]]
 #endif
 #endif // EXPAND FROM lyutils.h
 
@@ -253,7 +253,7 @@ DynStringsSplit(DynStrings* st, char sep) { // THANKS TSODING, AGAIN
   return r;
 }
 
-__LYMAYBEUNUSED
+LYATR(maybe_unused)
 char**
 DynStringsSplitMulti(DynStrings st, char sep) { // TO REFACTOR
   int* bufid = nullptr;
