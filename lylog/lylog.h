@@ -38,6 +38,12 @@
 #define LYM_SETLOGCOLOR(e, c) c,
 
 typedef enum { LYM_SETLOG(LYM_SETLOGENUM) } LYLOGE_LOGTYPE;
+typedef enum {
+  LYLOG_CFG_FILEINFO = 1u << 0,
+  LYLOG_CFG_TEXTONLY = 1u << 1,
+  LYLOG_CFG_TIME = 1u << 2,
+  LYLOG_CFG_COLOUR = 1u << 3
+} ___LYLOG_CONFENUM;
 static const char* LYGC_LOGMSG[] = {LYM_SETLOG(LYM_SETLOGENUMSTR)};
 static const char* LYGC_LOGCOLORS[] = {LYM_SETLOG(LYM_SETLOGCOLOR)};
 
@@ -92,24 +98,30 @@ static struct {
   void* udata;
   log_LockFn lock;
   int32_t msge;
-  int8_t fileinfo : 1;
-  int8_t justtxt : 1;
+  uint8_t config;
+  // fileinfo : 1;
+  // justtxt : 2;
+  // enabletime : 4;
   ___Callback callback[___MAXIMUM_CALL];
-} ___L;
+} ___L = {.config = (LYLOG_CFG_FILEINFO | LYLOG_CFG_TIME | LYLOG_CFG_COLOUR)};
 
 /// FORWARD DECLARATION ///
 
-void
-lylogConfLSetLevel(int32_t msge);
-void
-lylogConfToggleFileInfo();
-void
-lylogConfToggleTxtOnly();
+#define lylogConfDisableFileInfo() lylogConfDisable(LYLOG_CFG_FILEINFO)
+#define lylogConfDisableTextOnly() lylogConfDisable(LYLOG_CFG_TEXTONLY)
+#define lylogConfDisableTime() lylogConfDisable(LYLOG_CFG_TIME)
+#define lylogConfDisableColour() lylogConfDisable(LYLOG_CFG_COLOUR)
+
+#define lylogConfEnableFileInfo() lylogConfEnable(LYLOG_CFG_FILEINFO)
+#define lylogConfEnableTextOnly() lylogConfEnable(LYLOG_CFG_TEXTONLY)
+#define lylogConfEnableTime() lylogConfEnable(LYLOG_CFG_TIME)
+#define lylogConfEnableColour() lylogConfEnable(LYLOG_CFG_COLOUR)
 
 void
 ___print_log(const char* f, int32_t l, LYLOGE_LOGTYPE t, char* fmt, ...);
 
 /// /// IMPLEMENTATION /// ///
+///
 #ifdef LYLOG_IMPL
 #include <stdio.h>
 /// Fungsi konfigurasi untuk hanya melihat Error bagian mana saja yang
@@ -121,12 +133,12 @@ lylogConfLSetLevel(int32_t msge) {
 
 /// Fungsi konfigurasi untuk menambahkan info file juga pada logging
 void
-lylogConfToggleFileInfo() {
-  ___L.fileinfo = !___L.fileinfo;
+lylogConfEnable(uint8_t b) {
+  ___L.config = ___L.config | b;
 }
 void
-lylogConfToggleTxtOnly() {
-  ___L.justtxt = !___L.justtxt;
+lylogConfDisable(uint8_t b) {
+  ___L.config = ___L.config & ~b;
 }
 
 /// /// ///
@@ -156,18 +168,26 @@ ___initialize_event(LyLogEvent* ev, void* ptrout) {
   ev->prtout = ptrout;
 }
 
-static void
+static void // TO FIX
 ____printout_callback(LyLogEvent* ev) {
   char buf[16];
-  buf[strftime(buf, sizeof(buf), "%H:%M:%S", ev->time)] =
-      '\0'; // damn, this implementation
-  if (___L.justtxt) {
-  } else if (___L.fileinfo) {
-    fprintf(ev->prtout, "|%s| |%s|%s %s" LYMC_LOGFORMATEND " | ", buf, ev->file,
-            LYGC_LOGCOLORS[ev->msge], LYGC_LOGMSG[ev->msge]);
-  } else {
-    fprintf(ev->prtout, "|%s|%s %s" LYMC_LOGFORMATEND " | ", buf,
-            LYGC_LOGCOLORS[ev->msge], LYGC_LOGMSG[ev->msge]);
+  strftime(buf, sizeof(buf), "%H:%M:%S", ev->time);
+  if (!(___L.config & LYLOG_CFG_TEXTONLY)) {
+    if (___L.config & LYLOG_CFG_TIME)
+      fprintf(ev->prtout, "|%s ", buf);
+    if (___L.config & LYLOG_CFG_FILEINFO)
+      fprintf(ev->prtout, "@ %s| ", ev->file);
+
+    fprintf(ev->prtout, "|");
+    if (___L.config & LYLOG_CFG_COLOUR) {
+      fprintf(ev->prtout, "%s", LYGC_LOGCOLORS[ev->msge]);
+    }
+    fprintf(ev->prtout, "%s", LYGC_LOGMSG[ev->msge]);
+
+    if (___L.config & LYLOG_CFG_COLOUR) {
+      fprintf(ev->prtout, LYMC_LOGFORMATEND);
+    }
+    fprintf(ev->prtout, "| ");
   }
   vfprintf(ev->prtout, ev->fmt, ev->ap);
   fprintf(ev->prtout, "\n");
