@@ -1,17 +1,28 @@
 // NAME: lymemop.h
 // DESC: Header for memory operations
 
-#ifndef LYMEMOP_IMPL
+#include <stdio.h>
+#include <stdlib.h>
+#ifndef __LYMEMOP_VERSION__
+
+#include "lylog/lylog.h" // THIS SHIT SHOULD BE ILLEGAL
 
 #include <stddef.h>
 #include <stdint.h>
+
+// lyutils.h
+#define MAX(a, b) ((a > b) ? a : b)
+#define MIN(a, b) ((a > b) ? b : a)
+// EXPAND FROM lyutils.h
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #if (__STDC_VERSION__ >= 202311l)
+#define LYMAYBEE_UNUSED [[maybe_unused]]
 #else
+#define LYMAYBEE_UNUSED
 #include <stdbool.h>
 #endif
 
@@ -19,6 +30,7 @@ extern "C" {
 // // Memory Allocation // //
 // //
 
+LYMAYBEE_UNUSED
 void*
 lymemalign(const size_t size, const size_t alignment);
 
@@ -27,16 +39,17 @@ lymemalign(const size_t size, const size_t alignment);
 // //
 
 // Function to copy mem (s) with (szs) size to mem (d) with (szd) size
-void
+size_t
 lymemcpy(void* restrict s, const size_t szs, void* restrict d,
          const size_t szd);
 // mem char copy, memcpy but stop if (szs || szd) or if char c occurance
-void
+const size_t
 lymemccpy(void* restrict s, const size_t szs, void* restrict d,
           const size_t szd, char c);
 // Function to move memory of (s) with amount of (n). return void*
-void*
-lymemmove(void* restrict s, const size_t n);
+const size_t
+lymemmove(void* restrict s, const size_t szs, void* restrict d,
+          const size_t szd);
 // Function to duplicate mem of (s) with amount of (n). return void*
 void*
 memdup(void* restrict s, const size_t szs);
@@ -44,6 +57,10 @@ memdup(void* restrict s, const size_t szs);
 // hit szs
 void*
 memdupz(void* restrict s, const size_t szs);
+// Function to duplicate the container with malloc, it will duplicate and set to
+// 0
+void*
+memdupc(void* restrict s, const size_t szs);
 // Function to swap values of mem adress (s) with (szs) size, to value
 // of mem adress (d) with (szd) size
 void
@@ -59,7 +76,7 @@ lymemrev(void* d, const size_t n);
 
 // Function to set memory of the (d) of the size of (szd) and values of (c)
 void
-lymemset(void* restrict d, const size_t szd, const char c);
+lymemset(void* restrict d, const char c, const size_t n);
 // Function to set memory of the (d) with amount of (n) and with values of 0
 void
 lymemzero(void* d, size_t n);
@@ -95,7 +112,7 @@ lymemcmp(void* restrict s, void* restrict d, const size_t n);
 // Function to find sequence of memory (t) with (szt) size inside (s) with (szs)
 // size. return ptrdiff_t as realtive position of the memory sequence occurance
 ptrdiff_t
-lymemmem(void* s, const size_t szs, void* t, const size_t szt);
+lymemmem(void* s, const size_t szs, void* d, const size_t szd);
 // Function to check if (s) and (d) with (n) amount is equal
 bool
 lymemeq(void* restrict s, void* restrict d, const size_t n);
@@ -103,26 +120,57 @@ lymemeq(void* restrict s, void* restrict d, const size_t n);
 size_t
 lymemcount(void* d, size_t n, char c);
 
-#ifdef LYMEMPRO_IMPL
+#define LYMEMOP_IMPL
+#ifdef LYMEMOP_IMPL
+LYMAYBEE_UNUSED
 void*
 lymemalign(const size_t size, const size_t alignment) {}
 
-void
+size_t
 lymemcpy(void* restrict s, const size_t szs, void* restrict d,
-         const size_t szd) {}
+         const size_t szd) {
+  if (s == d) {
+    lym_printlog(ERROR, "lymemcpy: Pointer Overlap. Don't pass two pointer of "
+                        "the same location");
+    exit(1);
+  }
+  for (int i = 0; i < szs && i < szd; ++i) {
+    ((char*)d)[i] = ((char*)s)[i];
+  }
+  return MAX(szs, szd) - MIN(szs, szd);
+}
 
-void
+const size_t
 lymemccpy(void* restrict s, const size_t szs, void* restrict d,
-          const size_t szd, char c) {}
+          const size_t szd, char c) {
+  size_t j = 0;
+  for (int i = 0; i < szs && i < szd; ++i) {
+    if (((char*)s)[i] == c)
+      break;
+    ((char*)d)[i] = ((char*)s)[i];
+    ++j;
+  }
+  return MAX(szs, szd) - j;
+}
 
-void*
-lymemmove(void* restrict s, const size_t n) {}
+const size_t
+lymemmove(void* restrict s, const size_t szs, void* restrict d,
+          const size_t szd) {
+  for (size_t i = 0; i < szs && i < szd; ++i) {
+    ((char*)d)[i] = ((char*)s)[i];
+    ((char*)s)[i] = 0;
+  }
+  return MAX(szs, szd) - MIN(szs, szd);
+}
 
 void*
 memdup(void* restrict s, const size_t szs) {}
 
 void*
 memdupz(void* restrict s, const size_t szs) {}
+
+void*
+memdupc(void* restrict s, const size_t szs) {}
 
 void
 lymemswap(void* restrict s, const size_t szs, void* restrict d,
@@ -134,7 +182,12 @@ void
 lymemrev(void* d, const size_t n) {}
 
 void
-lymemset(void* restrict d, const size_t szd, const char c) {}
+lymemset(void* restrict d, const char c, const size_t n) {
+  for (size_t i = 0; i < n; ++i) {
+    *(char*)d = c;
+    d = (char*)d + 1;
+  }
+}
 
 void
 lymemzero(void* d, size_t n) {}
@@ -145,14 +198,14 @@ lymemone(void* d, size_t n) {}
 void
 lymemfill(void* d, const size_t n, char c) {}
 
-void*
-lymemreplace(void* d, const size_t n, char c) {}
+void
+lymemreplace(void* d, const size_t n, char c, void* o) {}
 
 void
 lymemclear(void* d, const size_t n) {}
 
-void
-lymempattern(void* d, const size_t n, char* p) {}
+int8_t
+lymempattern(void* d, const size_t n, char* p, size_t szp) {}
 
 bool
 lymemiszero(void* restrict s, const size_t n) {}
@@ -161,17 +214,17 @@ ptrdiff_t
 lymemchar(void* restrict s, const size_t szs, char c) {}
 
 size_t
-lymemcmp(void* restrict s, void* restrict d) {}
+lymemcmp(void* restrict s, void* restrict d, const size_t n) {}
 
 size_t
 lymemncmp(void* restrict s, const size_t szs, void* restrict d,
           const size_t szd) {}
 
-void*
+ptrdiff_t
 lymemmem(void* s, const size_t szs, void* d, const size_t szd) {}
 
 bool
-lymemeq(void* s, void* d) {}
+lymemeq(void* restrict s, void* restrict d, const size_t n) {}
 
 size_t
 lymemcount(void* d, size_t n, char c) {}
