@@ -1,6 +1,7 @@
 
-#define LYM_SETLOG(X) LYMC_LOGDEFAULT(X)
+// #define LYM_SETLOG(X) LYMC_LOGDEFAULT(X)
 
+#define LYLOG_IMPL
 #include "../lylog/lylog.h"
 #include <stdio.h>
 #include <string.h>
