@@ -39,6 +39,8 @@ extern "C" {
 // // Memory Movement Operation // //
 // //
 
+typedef enum { RLEFT, RRIGHT } LYMEM_ROTATION_DIRECTION;
+
 // Function to copy mem (s) with (szs) size to mem (d) with (szd) size
 size_t
 lymemcpy(void* restrict s, const size_t szs, void* restrict d,
@@ -69,6 +71,10 @@ lymemswap(void* restrict s, const size_t szs, void* restrict d,
 // Function to reverse values from memory adress of (d) with the amount of (n)
 void
 lymemrev(void* d, const size_t n);
+
+// Function to rotate memories
+void
+lymemrot(void* s, size_t szs, LYMEM_ROTATION_DIRECTION rt, size_t val);
 
 // //
 // // Memory Values Operation // //
@@ -204,6 +210,25 @@ lymemrev(void* d, const size_t n) {
     t = p[i];
     p[i] = p[n - 1 - i];
     p[n - 1 - i] = t;
+  }
+}
+
+void
+lymemrot(void* s, size_t szs, LYMEM_ROTATION_DIRECTION rt, size_t val) {
+  if (szs == 0)
+    return;
+  val %= szs;
+  if (val == 0)
+    return;
+
+  if (rt == RLEFT) {
+    lymemrev(s, val);
+    lymemrev(s + val, szs - val);
+    lymemrev(s, szs);
+  } else {
+    lymemrev(s, szs - val);
+    lymemrev(s + szs - val, val);
+    lymemrev(s, szs);
   }
 }
 
