@@ -1,15 +1,17 @@
 // NAME: lymemop.h
 // DESC: Header for memory operations
 
-#include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
 #ifndef __LYMEMOP_VERSION__
 
-#include "lylog/lylog.h" // THIS SHIT SHOULD BE ILLEGAL
-
+#include <assert.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#ifndef ___LYLOG_VERSION___
+#define lym_printlog()
+#endif
 
 // lyutils.h
 #define MAX(a, b) ((a > b) ? a : b)
@@ -142,8 +144,8 @@ size_t
 lymemcpy(void* restrict s, const size_t szs, void* restrict d,
          const size_t szd) {
   if (s == d) {
-    lym_printlog(ERROR, "lymemcpy: Pointer Overlap. Don't pass two pointer of "
-                        "the same location");
+    fprintf(stderr, "lymemcpy: Pointer Overlap. Don't pass two pointer of the "
+                    "same location");
     exit(1);
   } // TOFIX
   for (size_t i = 0; i < szs && i < szd; ++i) {
@@ -315,8 +317,8 @@ lymemszcmp(void* restrict s, const size_t szs, void* restrict d,
 void*
 lymemmem(void* d, const size_t szd, void* p, const size_t szp) {
   if (!(szd >= szp)) {
-    lym_printlog(ERROR,
-                 "UKURAN PATTERN JAUH LEBIH BESAR DARIPADA UKURAN DESTINASI");
+    fprintf(stderr,
+            "UKURAN PATTERN JAUH LEBIH BESAR DARIPADA UKURAN DESTINASI");
     return NULL;
   }
   for (size_t i = 0; i < szd; ++i) {

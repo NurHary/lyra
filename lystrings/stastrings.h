@@ -20,9 +20,9 @@
 #ifndef ___LYUTILS_VERSION___
 #if (__STDC_VERSION__ >= 202311l)
 #define LYNULL nullptr
-#define LYATR(atr) [[atr]]
+#define __LYMAYBEUNUSED [[maybe_unused]]
 #else
-#define LYATR(atr)
+#define __LYMAYBEUNUSED
 #define LYNULL NULL
 #endif
 // EXPAND FROM lyutils.h
@@ -50,15 +50,18 @@ StaStringsSplitCopy(StaStrings st, char sep, char p);
 StaStrings
 StaStringsSplit(StaStrings* st, char sep);
 char**
-StaStringsSplitMulti(StaStrings st, char sep);
+StaStringsSplitMulti(StaStrings st, char sep, size_t* len);
+void
+lyMultiFree(char** c, size_t len);
 
+#define LYSTASTRINGS_IMPL
 #ifdef LYSTASTRINGS_IMPL
 #include <ctype.h>
 #include <string.h>
 
 // EXPAND FROM lycontainer/dynlist.h
 #ifndef ___LYDYNLIST_VERSION___
-#define ___LYDYNLIST_VERSION___ "0.0.1"
+#define ___LYDYNLIST_VERSION___ 0.01f
 
 #define LYM_DYNLIST(type) type*
 #define ___LYMCDYNLIST_BASECAPACITY___ 2
@@ -122,34 +125,28 @@ StaStringsSlices(StaStrings* st, int l, int r) {
 
 // Need More Refactors especially:
 // 1. Part where it checks if i < count
+// Ganti Pendekatan menjadi full slices
 StaStrings
-StaStringsSplitCopy(StaStrings st, char sep,
-                    char p) { // THANKS TSODING, AGAIN
+StaStringsSplitCopy(StaStrings st, char sep, char p) {
   size_t i = 0;
-  while (i < st.count && st.arr[i] != sep) {
+  while (i < st.count && st.arr[i] != sep) { // to find the position of sep
     i += 1;
   }
 
-  if (p) {
-    if (i < st.count) {
-      StaStrings r = {
-          .count = st.count - i,
-          .arr = st.arr + i + 1, // sangat membutuhkan jumlah arr dibawah count
-      };
-      return r;
-    }
+  if (i >= st.count) {
     StaStrings r = st;
     return r;
   }
-  if (i < st.count) {
-    StaStrings r = {
-        .count = i,
-        .arr = st.arr, // sangat membutuhkan jumlah arr dibawah count
-    };
-    return r;
+
+  if (p) { // apabila p = 1
+    StaStringsSlices(&st, i + 1, 0);
+    st.count -= i;
+    return st;
+  } else {
+    StaStringsSlices(&st, 0, st.count - i);
+    st.count = i;
+    return st;
   }
-  StaStrings r = st;
-  return r;
 }
 
 StaStrings
@@ -172,9 +169,9 @@ StaStringsSplit(StaStrings* st,
   return r;
 }
 
-LYATR(maybe_unused)
+__LYMAYBEUNUSED
 char**
-StaStringsSplitMulti(StaStrings st, char sep) {
+StaStringsSplitMulti(StaStrings st, char sep, size_t* len) {
   int* bufid = LYNULL;
   int i = 0;
   while (i < st.count) {
@@ -207,9 +204,19 @@ StaStringsSplitMulti(StaStrings st, char sep) {
     curhead[i] = curptr;
     templast = bufid[i] + 1;
   }
+  *len = lymDynlistLen(bufid);
   lymDynlistFree(bufid);
   return curhead;
 }
+
+void
+lyMultiFree(char** c, size_t len) {
+  for (size_t i = 0; i < len; ++i) {
+    free(c[i]);
+  }
+  free(c);
+}
+
 #endif
 
 #endif

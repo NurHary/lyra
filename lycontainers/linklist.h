@@ -34,15 +34,9 @@ typedef struct {
   size_t count;
 } LLPtrHeader;
 
-#ifdef LYLINKLIST_IMPL
-typedef struct LinkedListConnection {
-  struct LinkedListConnection* ptr;
-} LLConnection;
-
-typedef struct {
-  size_t count;
-} LLPtrHeader;
 #endif
+
+#ifdef LYLINKLIST_IMPL
 
 // Fungsi macros untuk init linklist, tidak diniatkan untuk dipanggil oleh
 // pengguna akhir

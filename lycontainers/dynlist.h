@@ -5,7 +5,7 @@
  */
 
 #ifndef ___LYDYNLIST_VERSION___
-#define ___LYDYNLIST_VERSION___ "0.0.1"
+#define ___LYDYNLIST_VERSION___ 0.01f
 
 #include <stddef.h>
 #include <stdlib.h>
@@ -18,8 +18,7 @@
 #define LYNULL NULL
 #endif
 // EXPAND FROM lyutils.h
-
-#endif
+#endif // LYUTILS
 
 #define LYM_DYNLIST(type) type*
 #define ___LYMCDYNLIST_BASECAPACITY___ 2
@@ -53,5 +52,33 @@ typedef struct {
   free((___LyDynlistHeader*)(arr) - 1);                                        \
   arr = LYNULL
 #define lymDynlistLen(arr) ((___LyDynlistHeader*)(arr) - 1)->count
+
+// Duplication Method For Copying Char* / Strings
+char*
+LyDynListCharDup(char* s);
+
+// Freeing Strings From Dynlist
+void
+LyDynlistCharFree(char** d);
+
+#ifdef LYDYNLIST_IMPL
+#ifndef ___LYMEMOP_VERSION___
+#error "Dynlist need lymemop"
+#endif // ___LYMEMOP_VERSION___
+char*
+LyDynListCharDup(char* s) {
+  int len = strlen(s);
+  char* val = malloc(sizeof(char) * len + 1);
+  lymemcpy(s, len + 1, val, len + 1);
+  return val;
+}
+void
+LyDynlistCharFree(char** d) {
+  size_t len = lymDynlistLen(d);
+  for (size_t i = 0; i < len; ++i) {
+    free(d[i]);
+  }
+}
+#endif // LYDYNLIST_IMPL
 
 #endif
