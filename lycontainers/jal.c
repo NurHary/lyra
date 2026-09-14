@@ -1,21 +1,21 @@
-#define LYDYNLISTGEN_IMPL
-#include "dynlistgen.h"
+#define LYARENA_IMPL
+#include "arena.h"
+
 #include <stdio.h>
 
-LyDynlistGenerate(Bokep, int);
+typedef struct {
+  int jagal;
+  float uji;
+} Jajal;
+
+void* val = NULL;
+int con = 0;
 
 int
 main() {
-  LyDynlistBokep jajal = {0};
-  LyDynlistBokepPush(&jajal, 10);
-  LyDynlistBokepPush(&jajal, 20);
-  LyDynlistBokepPush(&jajal, 30);
-  LyDynlistBokepPush(&jajal, 50);
-  LyDynlistBokepPush(&jajal, 40);
-  LyDynlistBokepPush(&jajal, 70);
-  for (int i = 0; i < jajal.count; ++i) {
-    printf("Id: %d = %d\n", i, jajal.data[i]);
-  }
-  LyDynlistBokepFree(&jajal);
-  printf("JAJAL: %lu", jajal.capacity);
+  LyArena jajal = lyArenaInit(sizeof(Jajal) * 10); // 10 size_t
+  Jajal* values2 =
+      lyArenaAlloc(&jajal, &((Jajal){.jagal = 10, .uji = 3.f}), sizeof(Jajal));
+  printf("S: %d, %f\n", values2->jagal, values2->uji);
+  lyArenaFree(&jajal);
 }

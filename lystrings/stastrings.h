@@ -16,22 +16,10 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-// EXPAND FROM lyutils.h
-#ifndef ___LYUTILS_VERSION___
-#if (__STDC_VERSION__ >= 202311l)
-#define LYNULL nullptr
-#define __LYMAYBEUNUSED [[maybe_unused]]
-#else
-#define __LYMAYBEUNUSED
-#define LYNULL NULL
-#endif
-// EXPAND FROM lyutils.h
-
-#endif
-
 typedef struct {
-  size_t count;
   const char* arr;
+  size_t count;
+  size_t offset;
 } StaStrings;
 
 void
@@ -54,50 +42,13 @@ StaStringsSplitMulti(StaStrings st, char sep, size_t* len);
 void
 lyMultiFree(char** c, size_t len);
 
-#define LYSTASTRINGS_IMPL
 #ifdef LYSTASTRINGS_IMPL
 #include <ctype.h>
 #include <string.h>
 
-// EXPAND FROM lycontainer/dynlist.h
 #ifndef ___LYDYNLIST_VERSION___
-#define ___LYDYNLIST_VERSION___ 0.01f
-
-#define LYM_DYNLIST(type) type*
-#define ___LYMCDYNLIST_BASECAPACITY___ 2
-
-typedef struct {
-  size_t capacity;
-  size_t count;
-} ___LyDynlistHeader;
-
-#define lymDynlistPush(arr, val)                                               \
-  {                                                                            \
-    if (arr == LYNULL) {                                                       \
-      ___LyDynlistHeader* header =                                             \
-          malloc(sizeof(*arr) * ___LYMCDYNLIST_BASECAPACITY___ +               \
-                 sizeof(___LyDynlistHeader));                                  \
-      header->capacity = ___LYMCDYNLIST_BASECAPACITY___;                       \
-      header->count = 0;                                                       \
-      arr = (void*)(header + 1);                                               \
-    };                                                                         \
-    ___LyDynlistHeader* header = (___LyDynlistHeader*)(arr) - 1;               \
-    if (header->count >= header->capacity) {                                   \
-      header->capacity *= 1.5;                                                 \
-      header = realloc(header, sizeof(*arr) * header->capacity +               \
-                                   sizeof(___LyDynlistHeader));                \
-      arr = (void*)(header + 1);                                               \
-    }                                                                          \
-    (arr)[header->count++] = (val);                                            \
-  }
-
-#define lymDynlistLen(arr) ((___LyDynlistHeader*)(arr) - 1)->count
-
-#define lymDynlistFree(arr)                                                    \
-  free((___LyDynlistHeader*)(arr) - 1);                                        \
-  arr = LYNULL
-#endif
-// EXPAND FROM lycontainer/dynlist.h
+#error "StaStrings Membutuhkan Dynlist"
+#endif // ___LYDYNLIST_VERSION___
 
 void
 StaStringsNew(StaStrings* st, const char* s) {
@@ -120,6 +71,7 @@ StaStringsTrim(StaStrings* st) {
 void
 StaStringsSlices(StaStrings* st, int l, int r) {
   st->count -= r + l;
+  st->offset += l;
   st->arr += l;
 }
 
