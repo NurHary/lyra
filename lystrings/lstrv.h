@@ -1,5 +1,5 @@
-#ifndef LYVSTR_H_
-#define LYVSTR_H_
+#ifndef LYSTRV_H_
+#define LYSTRV_H_
 #define ___LYVSTRINGS_VERSION___ 0.02f
 
 // CONFIGURATION
@@ -13,6 +13,6 @@
 typedef struct {
   char* str;
   size_t count, offset;
-}lvstr;
+}lstrv;
 
-#endif LYVSTR_H_
+#endif // LYSTRV_H_
