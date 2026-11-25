@@ -1,0 +1,21 @@
+// CHANGE ANY <TYPE>
+
+struct LyLinkList<TYPE>{
+  <TYPE> data;
+  struct LyLinkList* pnext;
+};
+
+typedef struct LyLinkList<TYPE> LyLinkList<TYPE>;
+
+LyLinkList<TYPE>
+lyCreateLinkList<TYPE>();
+
+LyLinkList<TYPE>*
+lyInsertLinkList<TYPE>(LyLinkList<TYPE>* ll, <TYPE> val);
+
+
+
+// IMPLEMENTATION, MOVE TO SOMEWHRE SAFE
+
+
+// IMPLEMENTATION, MOVE TO SOMEWHRE SAFE

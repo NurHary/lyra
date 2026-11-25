@@ -1,11 +1,11 @@
-/* Files  : dynamiclist.h
+/* Files  : odynlist.h
  * Desc   : Header files untuk dynamiclist dengan implementasi
  * Revs   : Tambahkan fungi alternativ mengingat tidak semua compiler akan
  *          support return sistem untuk macros layaknya GCC (Extension)
  */
 
 #ifndef ___LYDYNLIST_VERSION___
-#define ___LYDYNLIST_VERSION___ 0.01f
+#define ___LYODYNLIST_VERSION___ 0.01f // OLD VERSION OF DYNLIST
 
 #include <stddef.h>
 #include <stdlib.h>

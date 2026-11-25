@@ -1,0 +1,57 @@
+// CHANGE ANY <TYPE>
+
+typedef struct {
+  <TYPE>* data;
+  size_t cap, count;
+}LyDynList<TYPE>;
+
+// INIT
+LyDynList<TYPE>
+lyInitDynList<TYPE>(size_t amount);
+
+// INSERT AND RESIZE
+void
+lyInsertDynList<TYPE>(lyDynList<TYPE>* list, <TYPE> val);
+
+// FREE
+void
+lyFreeDynList<TYPE>(lyDynList<TYPE>* list);
+
+
+// IMPLEMENTATION, MOVE TO SOMEWHRE SAFE
+
+// INIT
+LyDynList<TYPE>
+lyInitDynList<TYPE>(size_t amount){
+  LyDynList<TYPE> ret = {0};
+  ret.data = malloc(sizeof(<TYPE>) * amount);
+  if (ret.data == NULL){
+    fprintf(stderr, "ERROR: ALOKASI RW DYNLIST MEMORI\n");
+    exit(1);
+  }
+  ret.cap = amount;
+  return ret;
+}
+
+// INSERT
+void
+lyInsertDynList<TYPE>(lyDynList<TYPE>* list, <TYPE> val){
+  if (list->cur + amount > list->cap){
+     void* t = realloc(list->data, sizeof(TYPE) * list->cap * 1.5);
+     if (t == NULL){
+       fprintf(stderr, "ERROR: REALOKASI RW DYNLIST MEMORI\n");
+       exit(2);
+     }
+     list->data = t;
+     list->cap *=1.5;
+  }
+  list->data[list->count++] = val;
+}
+
+// FREE
+void
+lyFreeDynList<TYPE>(lyDynList<TYPE>* list){
+  free(list->data);
+}
+
+// IMPLEMENTATION, MOVE TO SOMEWHRE SAFE

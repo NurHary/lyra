@@ -8,10 +8,8 @@
 #include <string.h>
 #include <sys/mman.h>
 typedef struct {
-  void* base;
-  void* cur;
-  size_t count;
-  size_t capacity;
+  void* base, *cur;
+  size_t count, cap;
 } LyArena;
 
 // Initialize arena / Linear Allocator
@@ -26,13 +24,15 @@ lyArenaAlloc(LyArena* ptr, void* data, size_t szs);
 void*
 lyArenaReset(LyArena* ptr);
 
-//
+// Free Arena / Deallocate Arena
 void
 lyArenaFree(LyArena* ptr);
 
 #endif
 
-// #define LYARENA_IMPL
+
+
+
 #ifdef LYARENA_IMPL
 
 // Function to init Arena, return arena with base that get mmapped
@@ -41,14 +41,14 @@ lyArenaInit(size_t amm) {
   char* val = mmap(NULL, amm, PROT_READ | PROT_WRITE,
                    MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
   LyArena arena = (LyArena){
-      .base = (void*)val, .cur = (void*)val, .count = 0, .capacity = amm};
+      .base = (void*)val, .cur = (void*)val, .count = 0, .cap = amm};
   return arena;
 }
 
 // Allocate (data) with size of (szs) to arena* (ptr)
 void*
 lyArenaAlloc(LyArena* ptr, void* data, size_t szs) {
-  if (ptr->count + szs >= ptr->capacity) {
+  if (ptr->count + szs >= ptr->cap) {
     return NULL;
   }
   memcpy(ptr->cur, data, sizeof(char) * szs);
@@ -68,7 +68,7 @@ lyArenaReset(LyArena* ptr) {
 // Free Arena* (ptr) base
 void
 lyArenaFree(LyArena* ptr) {
-  munmap(ptr->base, ptr->capacity);
+  munmap(ptr->base, ptr->cap);
 }
 
 #endif // LYARENA_IMPL
