@@ -1,11 +1,10 @@
-CC: gcc
-FLAG: -std=c99 -Wall
-
+CC:= gcc
+DFLAG:= -std=c99 -Wall -Werror
+BFLAG:= -std=c99 -DLYC_BUILD_MODE -DNDEBUG
 
 debug:
-	$(CC) $(FLAG) main.c -o ./main
+	$(CC) $(DFLAG) main.c -o ./main
 build:
-	$(CC) $(FLAG) -Wall -Werror -DLY_BUILD_MODE -DNDEBUG main.c -o ./main
+	$(CC) $(BFLAG) main.c -o ./main
 
-.PHONY:
-	debug
+.PHONY: debug build

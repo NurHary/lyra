@@ -1,16 +1,18 @@
 // NAME:  dynlist.h
 // DESC:  dynamic list header
 
-#ifndef ___LYDYNLIST_VERSION___
-#define ___LYDYNLIST_VERSION___ 0.01f
+#ifndef LYDARR_H_
+#define LYDARR_H_
+
+#define ___LYVER_DARR 0.01f
 
 
-#endif
+#endif // LYDARR_H_
 
 
-#ifdef LYDYNLIST_IMPL
+#ifdef LYDARR_IMPL_
 
 void
 Init
 
-#endif // LYDYNLIST_IMPL
+#endif // LYDARR_IMPL_
